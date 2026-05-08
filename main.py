@@ -1,6 +1,6 @@
 
 from pygame import *
-from FILES import*
+from files import*
 from cofing import*
 # 1. INICIALIZACIÓN
 init()
