@@ -12,7 +12,7 @@ font.init()
 # 3. DEFINICIÓN DE CLASES
 class GameSprite(sprite.Sprite):
     """Clase base para todos los objetos visuales del juego."""
-    def __init__(self, sprite_img, x, y, w, h, speed):
+    def __init__(self, sprite_img, x, y, w, h, speed=0):
         super().__init__()
         self.image = transform.scale(image.load(sprite_img), (w, h))
         self.rect = self.image.get_rect()
@@ -40,6 +40,27 @@ class Player(GameSprite):
         if keys[K_s] and self.rect.y < ALTO - self.rect.height:
             self.rect.y += self.speed
 
+class Pajaro(GameSprite):
+    def __init__(self, sprite_img, x, y, w, h):
+        super().__init__(sprite_img, x, y, w, h)
+        self.vel_y = 0
+
+    def update(self):
+        self.vel_y += GRAVEDAD
+        self.rect.y += int(self.vel_y)
+        #limites
+        if self.rect.y > ALTO - self.rect.height:
+            self.rect.y = ALTO - self.rect.height
+            self.vel_y = 0
+        if self.rect.y < 0:
+            self.rect.y = 0 
+            self.vel_y = 0
+
+    def jump(self):
+        self.vel_y = SALTO
+
+    
+
 class Enemy(GameSprite):
     """Clase para obstáculos o enemigos con movimiento automático."""
     def update(self):
@@ -56,6 +77,7 @@ reloj = time.Clock()
 # Aquí se crearían los grupos de sprites y objetos individuales
 # player = Player('hero.png', 50, ALTO - 100, 80, 100, 5)
 background = transform.scale(image.load(FONDO), (ANCHO, ALTO))
+jugador = Pajaro(HEROE, (ANCHO - 80) // 2, ALTO - 200, 100, 80)
 # enemies = sprite.Group()
 
 # 5. CICLO PRINCIPAL (GAME LOOP)
@@ -73,11 +95,15 @@ while run:
             if e.key == K_r:
                 finish = False
                 # Aquí se debería resetear la posición de los objetos
+            if e.key == K_SPACE and not finish:
+                jugador.jump()
 
     # --- B. Lógica del Juego (Solo si no ha terminado) ---
     if not finish:
         window.fill(COLOR_FONDO)
         window.blit(background, (0, 0))
+        jugador.reset(window)
+        jugador.update()
         # Actualizar posiciones
         # player.update()
         # enemies.update()
